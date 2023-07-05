@@ -5,16 +5,20 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../../model/user.model';
 import { CreateUserDto } from '../dto/createuser.dto';
 import { UpdateUserDto } from '../dto/updateuser.dto';
-import { UserRepository } from '../interface/user.repository.interface';
+import { UserRepositoryInterface } from '../interface/user.repository.interface';
 
 
 @Injectable()
-export class UserRepositoryImpl implements UserRepository {
+export class UserRepository implements UserRepositoryInterface {
   constructor(@InjectModel(User.name) private readonly userModel: Model<User>) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     const createdUser = new this.userModel(createUserDto);
     return createdUser.save();
+  }
+
+  async findAllUsers(): Promise<User[]> {
+    return this.userModel.find().exec();
   }
 
   async findUserById(id: string): Promise<User | null> {
