@@ -10,6 +10,7 @@ import { User } from '../entities/user.model';
 import { CreateUserDto } from '../repository/dto/createuser.dto';
 import { UpdateUserDto } from '../repository/dto/updateuser.dto';
 import { randomBytes } from 'crypto';
+import { ForgotPasswordDto } from '../repository/dto/forgotPassword.dto';
 
 @Injectable()
 export class UsersService {
@@ -60,18 +61,16 @@ export class UsersService {
   }
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<void> {
     const { email } = forgotPasswordDto;
-    const resetToken = generateResetToken(email); // Your logic to generate a reset token
+    // const resetToken = generateResetToken(email); // Your logic to generate a reset token
 
-    await this.userRepository.updateResetToken(email, resetToken);
-    await this.sendPasswordResetNotification(email, resetToken); // Implement your notification logic
+    // await this.userRepository.updateResetToken(email, resetToken);
+    // await this.sendPasswordResetNotification(email, resetToken); // Implement your notification logic
   }
-  function generateResetToken(email: string): string {
-    const tokenData = email + Date.now(); // Concatenate email and timestamp
-    const token = randomBytes(32).toString('hex'); // Generate a random token
-  
-    // Combine the token and tokenData to create a unique reset token
-    const resetToken = `${token}-${tokenData}`;
-  
-    return resetToken;
-  }
+  // function generateResetToken(email: string): string {
+  //   const tokenData = email + Date.now(); // Concatenate email and timestamp
+  //   const token = randomBytes(32).toString('hex'); // Generate a random token
+  //   // Combine the token and tokenData to create a unique reset token
+  //   const resetToken = `${token}-${tokenData}`;
+  //   return resetToken;
+  // }
 }
