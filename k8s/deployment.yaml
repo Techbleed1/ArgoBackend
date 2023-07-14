@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argo-ai
+spec:
+  selector:
+    matchLabels:
+      app: argo-ai
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: argo-ai
+    spec:
+      containers:
+        - name: argo-ai
+          image: kumargowtham/argo-ai
+          ports:
+            - containerPort: 3000

@@ -1,23 +1,28 @@
-# Use the official Node.js 14 base image
-FROM node:14
+FROM node:alpine AS development
 
-# Set the working directory in the container
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci
+RUN npm install
 
-# Copy the rest of the application code to the working directory
-COPY . .
+COPY . . 
 
-# Build the application
 RUN npm run build
 
-# Expose the application port
-EXPOSE 3000
+FROM node:alpine as production
 
-# Start the application
-CMD [ "node", "dist/main" ]
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+RUN npm install --only=prod
+
+COPY . .
+
+COPY --from=development /usr/src/app/dist ./dist
+
+CMD ["node", "dist/main"]
