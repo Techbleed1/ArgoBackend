@@ -10,4 +10,5 @@ export interface UserRepositoryInterface {
   findUserByEmail(email: string): Promise<User | null>;
   updateUser(id: string, updateUserDto: UpdateUserDto): Promise<User | null>;
   deleteUser(id: string): Promise<void>;
+  updateResetToken(email: string, resetToken: string): Promise<void>;
 }

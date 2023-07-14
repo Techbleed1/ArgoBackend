@@ -36,4 +36,8 @@ export class UserRepository implements UserRepositoryInterface {
   async deleteUser(id: string): Promise<void> {
     await this.userModel.findByIdAndDelete(id).exec();
   }
+
+  async updateResetToken(email: string, resetToken: string): Promise<void> {
+    await this.userModel.findOneAndUpdate({ email }, { resetToken }).exec();
+  }
 }

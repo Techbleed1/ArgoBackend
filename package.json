@@ -29,6 +29,7 @@
     "class-validator": "^0.14.0",
     "mapped-types": "0.0.1",
     "mongoose": "^7.3.1",
+    "nodemailer": "^6.9.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^4.6.3"
