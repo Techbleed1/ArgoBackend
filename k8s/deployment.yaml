@@ -17,3 +17,5 @@ spec:
           image: kumargowtham/argo-ai
           ports:
             - containerPort: 3000
+            - port: 3000
+            - targetPortport: 3000

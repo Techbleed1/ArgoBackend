@@ -8,5 +8,4 @@ spec:
   ports:
     - protocol: TCP
       port: 3000
-      targetPortport: 3000
   type: LoadBalancer
