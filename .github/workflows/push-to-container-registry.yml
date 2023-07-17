@@ -12,6 +12,9 @@ env:
   GKE_ZONE: asia-south1   # Add your cluster zone here.
   DEPLOYMENT_NAME: argo-ai # Add your deployment name here.
   IMAGE: argo-ai
+  Registry: gcr.io
+  NAMESPACE: default
+  CONTAINER: argo-ai
 
 jobs:
  setup-build-publish-deploy:
@@ -72,5 +75,4 @@ jobs:
     # Deploy the Docker image to the GKE cluster
       - name: Deploy
         run: |-
-         kubectl cluster-info
-         kubectl apply -f k8s/deployment.yaml
+       gcloud container clusters get-credentials "${GKE_CLUSTER}" --zone "${GKE_ZONE}" --project "${PROJECT_ID}" && gcloud components install kubectl && kubectl -n "${NAMESPACE}" set image deployment/"${DEPLOYMENT_NAME}" "${CONTAINER}"="${Registry}/${PROJECT_ID}/${IMAGE}"
