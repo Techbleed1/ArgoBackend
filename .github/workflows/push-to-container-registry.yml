@@ -44,3 +44,7 @@ jobs:
       - name: Deploy
         run: |-
           gcloud container clusters get-credentials argo-ai --region asia-south1 --project concrete-braid-392715
+      
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f deployment.yaml
