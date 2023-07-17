@@ -77,4 +77,4 @@ jobs:
       - name: Deploy
         run: |-
          gcloud container clusters get-credentials $GKE_CLUSTER --zone $GKE_ZONE --project $PROJECT_ID && gcloud components install kubectl && kubectl -n $NAMESPACE set image deployment/$DEPLOYMENT_NAME $CONTAINER="${Registry}/${PROJECT_ID}/${IMAGE}:${GITHUB_SHA}" && \ 
-         kubectl create configmap my-config-map --from-literal=image-tag=$GITHUB_SHA && kubectl apply -f k8s/deployment.yaml && kubectl get pods
+         kubectl create configmap my-config-map --from-literal=image-tag=$GITHUB_SHA && kubectl apply -f k8s/deployment.yaml
