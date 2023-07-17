@@ -15,6 +15,7 @@ env:
   Registry: gcr.io
   NAMESPACE: default
   CONTAINER: argo-ai
+  GITHUB_SHA_env: $GITHUB_SHA
 
 jobs:
  setup-build-publish-deploy:
