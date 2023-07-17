@@ -75,4 +75,4 @@ jobs:
     # Deploy the Docker image to the GKE cluster
       - name: Deploy
         run: |-
-         gcloud container clusters get-credentials $GKE_CLUSTER --zone $GKE_ZONE --project $PROJECT_ID && gcloud components install kubectl && kubectl -n $NAMESPACE set image deployment/$DEPLOYMENT_NAME $CONTAINER=$Registry/$PROJECT_ID/$IMAGE:$GITHUB_SHA && kubectl apply -f k8s/deployment.yaml && kubectl get pods
+         gcloud container clusters get-credentials $GKE_CLUSTER --zone $GKE_ZONE --project $PROJECT_ID && gcloud components install kubectl && kubectl -n $NAMESPACE set image $DEPLOYMENT_NAME $CONTAINER="${Registry}/${PROJECT_ID}/${IMAGE}:${GITHUB_SHA}" && kubectl apply -f k8s/deployment.yaml && kubectl get pods
