@@ -35,12 +35,11 @@ jobs:
 
       - name: Build and tag the docker image
         run: |-
-          docker build . --tag gcr.io/$PROJECT_ID/$REPO_NAME:$GITHUB_SHA
+          docker build . --tag gcr.io/$PROJECT_ID/$REPO_NAME:latest
 
       - name: Push the image to the Google Container Registry (GCR)
         run: |-
-          docker push gcr.io/$PROJECT_ID/$REPO_NAME:$GITHUB_SHA
-
+          docker push gcr.io/$PROJECT_ID/$REPO_NAME:latest
       - name: Deploy
         run: |-
           gcloud container clusters get-credentials argo-ai --region asia-south1 --project concrete-braid-392715
