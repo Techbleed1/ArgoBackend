@@ -6,6 +6,7 @@ on:
       - master
       - main
 env:
+  GCLOUD_PROJECT: ${{ secrets.CLOUD_RUN_PROJECT_NAME }}
   PROJECT_ID: ${{ secrets.CLOUD_RUN_PROJECT_NAME }}
   GKE_CLUSTER: argo-ai    # Add your cluster name here.
   GKE_ZONE: asia-south1   # Add your cluster zone here.
