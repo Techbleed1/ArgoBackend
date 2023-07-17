@@ -17,3 +17,9 @@ spec:
           image: gcr.io/concrete-braid-392715/argo-ai:$IMAGE_TAG
           ports:
             - containerPort: 3000
+          env:
+            - name: IMAGE_TAG
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config-map
+                  key: image-tag
