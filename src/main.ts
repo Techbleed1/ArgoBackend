@@ -11,7 +11,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Argo API Documentation')
-    .setDescription('The cats API description')
+    .setDescription('The cats API descriptions')
     .setVersion('1.0')
     .addTag('cats')
     .build();
