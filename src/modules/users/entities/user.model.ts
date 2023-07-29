@@ -14,6 +14,16 @@ export class User {
 
   @Prop()
   password: string;
+
+  @Prop()
+  bio: string;
+
+  @Prop()
+  profilePicture: string;
+
+  @Prop()
+  coverPicutre: string
+
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
