@@ -14,6 +14,7 @@ import { PostsController } from './modules/posts/controllers/posts.controller';
 
 const logger = new Logger('app');
 
+
 // const db_uri1 = 'mongodb://admin:secret@127.0.0.1:27017/dd_argo?auth=flse';
 const db_uri1 = 'mongodb+srv://kumargowtham:ZFo5DwppYE6cTaME@cluster0.1ujusku.mongodb.net/?retryWrites=true&w=majority';
 
