@@ -11,10 +11,16 @@ import { CreateUserDto } from '../repository/dto/createuser.dto';
 import { UpdateUserDto } from '../repository/dto/updateuser.dto';
 import { randomBytes } from 'crypto';
 import { ForgotPasswordDto } from '../repository/dto/forgotPassword.dto';
+import { MailerService} from '../../mail/mailer/mailer.service';
+import * as otpGenerator from 'otp-generator';
 
 @Injectable()
 export class UsersService {
-  constructor(private userRepository: UserRepository) {}
+  private otpStore: Record<string, { otp: string; timestamp: number }> = {};
+  constructor(
+    private userRepository: UserRepository,
+    private readonly emailService: MailerService,
+  ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     const { email } = createUserDto;
@@ -73,4 +79,30 @@ export class UsersService {
   //   const resetToken = `${token}-${tokenData}`;
   //   return resetToken;
   // }
+
+  async initiatePasswordReset(email: string) {
+    const user = await this.userRepository.findUserByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const otp = otpGenerator.generate(6, {
+      upperCase: false,
+      specialChars: false,
+    });
+    this.otpStore[email] = { otp, timestamp: Date.now() };
+    await await this.emailService.sendPasswordResetEmail(email, otp);
+  }
+
+  async completePasswordReset(email: string, otp: string, newPassword: string) {
+    const storedOtp = this.otpStore[email];
+    if (
+      storedOtp &&
+      storedOtp.otp === otp &&
+      Date.now() - storedOtp.timestamp <= 600000
+    ) {
+      delete this.otpStore[email];
+    } else {
+      throw new Error('Invalid OTP or OTP has expired.');
+    }
+  }
 }
