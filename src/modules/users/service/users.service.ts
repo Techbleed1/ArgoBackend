@@ -11,6 +11,7 @@ import { CreateUserDto } from '../repository/dto/createuser.dto';
 import { UpdateUserDto } from '../repository/dto/updateuser.dto';
 import { randomBytes } from 'crypto';
 import { ForgotPasswordDto } from '../repository/dto/forgotPassword.dto';
+import { PaginationDto } from '../repository/dto/pagination.dto';
 
 @Injectable()
 export class UsersService {
@@ -25,9 +26,11 @@ export class UsersService {
     return this.userRepository.createUser(createUserDto);
   }
 
-  async findUsers(page: number, limit: number): Promise<User[]> {
-    const skip = (page - 1) * limit;
-    return this.userRepository.findUsers(skip, limit);
+  async findUsers(
+    limit: PaginationDto['limit'],
+    page: PaginationDto['page'],
+  ): Promise<{ total: number; users: User[] }> {
+    return this.userRepository.findUsers(limit, page);
   }
 
   async findUserById(id: string): Promise<User | null> {

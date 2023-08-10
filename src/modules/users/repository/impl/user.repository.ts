@@ -6,6 +6,7 @@ import { User } from '../../entities/user.model';
 import { CreateUserDto } from '../dto/createuser.dto';
 import { UpdateUserDto } from '../dto/updateuser.dto';
 import { UserRepositoryInterface } from '../interface/user.repository.interface';
+import { PaginationDto } from '../dto/pagination.dto';
 
 
 @Injectable()
@@ -17,8 +18,23 @@ export class UserRepository implements UserRepositoryInterface {
     return createdUser.save();
   }
 
-  async findUsers(skip: number, limit: number): Promise<User[]> {
-    return this.userModel.find().skip(skip).limit(limit).exec();
+  async findUsers(limit:PaginationDto["limit"], page:PaginationDto["page"]): Promise<{ total: number,page:number,limit:number, users: User[] }> {
+    
+    const newpage = page || 1;
+    const newlimit = limit|| 10;
+    const skip = (newpage - 1) * newlimit;
+    console.log("----"+page);
+    const [users, total] = await Promise.all([
+      this.userModel.find().skip(skip).limit(limit).exec(),
+      this.userModel.countDocuments().exec(),
+    ]);
+
+    return {
+      total,
+      newpage,
+      limit,
+      users,
+    };
   }
 
   async findUserById(id: string): Promise<User | null> {

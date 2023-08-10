@@ -8,10 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 import { AuthModule } from './modules/auth/auth.module';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
-import { PostsModule } from './posts/posts.module';
-import { Src\modules\posts\controllers\postsController } from './src/modules/posts/controllers/posts/src/modules/posts/controllers/posts.controller';
-import { PostsController } from './posts/posts.controller';
-import { PostsController } from './posts/posts.controller';
+
 
 const logger = new Logger('app');
 
@@ -26,9 +23,8 @@ const db_uri1 = 'mongodb://admin:secret@127.0.0.1:27017/dd_argo?auth=flse';
       http: process.env.NODE_ENV !== 'production',
     }),
     UsersModule,
-    AuthModule,
-    PostsModule],
-  controllers: [AppController, Src\modules\posts\controllers\postsController, PostsController],
+    AuthModule],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
