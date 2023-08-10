@@ -40,4 +40,8 @@ export class UserRepository implements UserRepositoryInterface {
   async updateResetToken(email: string, resetToken: string): Promise<void> {
     await this.userModel.findOneAndUpdate({ email }, { resetToken }).exec();
   }
+
+  async updatePassword(email: string, password: string): Promise<void> {
+    await this.userModel.findOneAndUpdate({ email }, { password }).exec();
+  }
 }
