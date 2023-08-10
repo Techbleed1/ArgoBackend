@@ -18,11 +18,11 @@ export class UserRepository implements UserRepositoryInterface {
     return createdUser.save();
   }
 
-  async findUsers(limit:PaginationDto["limit"], page:PaginationDto["page"]): Promise<{ total: number,page:number,limit:number, users: User[] }> {
+  async findUsers(pagination:PaginationDto): Promise<{ total: number,page:number,limit:number, users: User[] }> {
     
-    const newpage = page || 1;
-    const newlimit = limit|| 10;
-    const skip = (newpage - 1) * newlimit;
+    const page = pagination.page || 1;
+    const limit = pagination.limit|| 10;
+    const skip = (page - 1) * limit;
     console.log("----"+page);
     const [users, total] = await Promise.all([
       this.userModel.find().skip(skip).limit(limit).exec(),
@@ -31,7 +31,7 @@ export class UserRepository implements UserRepositoryInterface {
 
     return {
       total,
-      newpage,
+      page,
       limit,
       users,
     };
@@ -55,5 +55,9 @@ export class UserRepository implements UserRepositoryInterface {
 
   async updateResetToken(email: string, resetToken: string): Promise<void> {
     await this.userModel.findOneAndUpdate({ email }, { resetToken }).exec();
+  }
+
+  async updatePassword(email: string, password: string): Promise<void> {
+    await this.userModel.findOneAndUpdate({ email }, { password }).exec();
   }
 }

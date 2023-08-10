@@ -1,0 +1,9 @@
+{
+    "email": {
+      "user": "manissinsh@gmail.com",
+      "pass": "mVFr19bIDOB30A8n",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "from": "no-reply@argo.com"
+    }
+  }
