@@ -8,12 +8,14 @@ import {
   Delete,
   Body,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { User } from '../entities/user.model';
 import { CreateUserDto } from '../repository/dto/createuser.dto';
 import { UpdateUserDto } from '../repository/dto/updateuser.dto';
 import { UsersService } from '../service/users.service';
 import { ApiTags } from '@nestjs/swagger';
+import { PaginationDto } from '../repository/dto/pagination.dto'; 
 
 @ApiTags('users')
 @Controller('users')
@@ -25,13 +27,12 @@ export class UsersController {
     return await this.usersService.createUser(createUserDto);
   }
 
-  @Get('/all')
-  async findUsers(
-    @Query('page') page = 1,
-    @Query('limit') limit = 10,
-  ): Promise<User[]> {
-    return this.usersService.findUsers(page, limit);
-  }
+    @Get('/all')
+    async findUsers(
+      @Query(new ValidationPipe({ transform: true })) pagination: PaginationDto
+    ): Promise<{ total: number; users: User[] }> {
+      return this.usersService.findUsers(pagination);
+    }
 
   @Get(':id')
   async findUserById(@Param('id') id: string): Promise<User> {

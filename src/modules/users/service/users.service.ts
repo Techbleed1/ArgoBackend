@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Injectable,
   ConflictException,
@@ -11,7 +12,8 @@ import { CreateUserDto } from '../repository/dto/createuser.dto';
 import { UpdateUserDto } from '../repository/dto/updateuser.dto';
 import { randomBytes } from 'crypto';
 import { ForgotPasswordDto } from '../repository/dto/forgotPassword.dto';
-import { MailerService} from '../../mail/service/mailer.service';
+import { PaginationDto } from '../repository/dto/pagination.dto';
+import { MailerService } from '../../mail/service/mailer.service';
 import * as otpGenerator from 'otp-generator';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
@@ -32,9 +34,9 @@ export class UsersService {
     return this.userRepository.createUser(createUserDto);
   }
 
-  async findUsers(page: number, limit: number): Promise<User[]> {
-    const skip = (page - 1) * limit;
-    return this.userRepository.findUsers(skip, limit);
+  async findUsers(pagination:PaginationDto
+  ): Promise<{ total: number; users: User[] }> {
+    return this.userRepository.findUsers(pagination);
   }
 
   async findUserById(id: string): Promise<User | null> {
