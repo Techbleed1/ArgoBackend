@@ -9,7 +9,6 @@ export class MailerService {
   async sendPasswordResetEmail(to: string, otp: string) {
     console.log('log', );
     await this.mailService.sendMail({
-        from: 'no-reply@argo.com',
         to,
         subject: 'Password Reset OTP',
         template: './otp',
