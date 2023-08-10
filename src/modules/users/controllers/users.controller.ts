@@ -51,17 +51,18 @@ export class UsersController {
     return this.usersService.deleteUser(id);
   }
 
-  @Post('/reset-password')
-  async resetPassword(@Body() data: { email: string }) {
-    await this.usersService.initiatePasswordReset(data.email);
+  @Post('/reset-password-otp')
+  async resetPasswordSendOtp(@Body() data: { email: string }) {
+    await this.usersService.otpForPasswordReset(data.email);
     return { message: 'Password reset email sent.' };
   }
 
-  @Post('/complete-reset')
-  async completeReset(
+  @Post('/reset-password')
+  async resetPassword(
     @Body() data: { email: string; otp: string; newPassword: string },
   ) {
-    await this.usersService.completePasswordReset(
+    console.error('Request Body:', data); 
+    await this.usersService.passwordReset(
       data.email,
       data.otp,
       data.newPassword,

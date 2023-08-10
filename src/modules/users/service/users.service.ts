@@ -11,8 +11,9 @@ import { CreateUserDto } from '../repository/dto/createuser.dto';
 import { UpdateUserDto } from '../repository/dto/updateuser.dto';
 import { randomBytes } from 'crypto';
 import { ForgotPasswordDto } from '../repository/dto/forgotPassword.dto';
-import { MailerService} from '../../mail/mailer/mailer.service';
+import { MailerService} from '../../mail/service/mailer.service';
 import * as otpGenerator from 'otp-generator';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 @Injectable()
 export class UsersService {
@@ -80,7 +81,7 @@ export class UsersService {
   //   return resetToken;
   // }
 
-  async initiatePasswordReset(email: string) {
+  async otpForPasswordReset(email: string) {
     const user = await this.userRepository.findUserByEmail(email);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -93,16 +94,21 @@ export class UsersService {
     await await this.emailService.sendPasswordResetEmail(email, otp);
   }
 
-  async completePasswordReset(email: string, otp: string, newPassword: string) {
-    const storedOtp = this.otpStore[email];
-    if (
-      storedOtp &&
-      storedOtp.otp === otp &&
-      Date.now() - storedOtp.timestamp <= 600000
-    ) {
-      delete this.otpStore[email];
-    } else {
-      throw new Error('Invalid OTP or OTP has expired.');
+  async passwordReset(email: string, otp: string, newPassword: string) {
+    try {
+      const storedOtp = this.otpStore[email];
+      if (
+        storedOtp &&
+        storedOtp.otp === otp &&
+        Date.now() - storedOtp.timestamp <= 600000
+      ) {
+        this.userRepository.updatePassword(email, newPassword);
+        delete this.otpStore[email];
+      } else {
+        throw new HttpException('Invalid OTP or OTP has expired.', HttpStatus.OK);
+      }
+    } catch (error) {
+      throw error;
     }
   }
 }

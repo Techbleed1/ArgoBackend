@@ -6,16 +6,15 @@ import { MailerService as MailService }  from '@nestjs-modules/mailer';
 export class MailerService {
   constructor(private readonly mailService: MailService) {}
 
- // const templatePath = path.join(__dirname, '../../templates/reset-otp');
-
   async sendPasswordResetEmail(to: string, otp: string) {
-    console.log('log', otp);
+    console.log('log', );
     await this.mailService.sendMail({
         from: 'no-reply@argo.com',
         to,
         subject: 'Password Reset OTP',
-        template: '../templates/reset-otp',
+        template: './otp',
         context: { otp },
     });
   }
+  
 }
