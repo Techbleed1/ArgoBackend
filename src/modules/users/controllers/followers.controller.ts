@@ -7,14 +7,16 @@ import {
   HttpStatus,
   HttpException,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { FollowersService } from '../service/followers.service';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '../../auth/guards/authguard';
 @ApiTags('followers')
 @Controller('followers')
 export class FollowersController {
   constructor(private followersService: FollowersService) {}
-
+  @UseGuards(AuthGuard)
   @Post('/follow')
   async followUser(
     @Body() data: { userId: string; followingId: string },
@@ -28,7 +30,7 @@ export class FollowersController {
     }
     return { message: 'User followed successfully' };
   }
-
+  @UseGuards(AuthGuard)
   @Post('/unFollow')
   async unFollowUser(
     @Body() data: { userId: string; followingId: string },
@@ -36,7 +38,7 @@ export class FollowersController {
     await this.followersService.unFollowUser(data.userId, data.followingId);
     return { message: 'User unfollowed successfully' };
   }
-
+  @UseGuards(AuthGuard)
   @Get('/followersList/:userId')
   async getFollowers(
     @Param('userId') userId: string,
@@ -45,7 +47,7 @@ export class FollowersController {
   ): Promise<any> {
     return this.followersService.getFollowers(userId, page, limit);
   }
-
+  @UseGuards(AuthGuard)
   @Get('/followingList/:userId')
   async getFollowing(
     @Param('userId') userId: string,
