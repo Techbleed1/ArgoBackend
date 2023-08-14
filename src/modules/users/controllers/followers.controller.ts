@@ -1,4 +1,13 @@
-import { Controller, Post, Get, Param, Body, HttpStatus, HttpException } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  Get,
+  Param,
+  Body,
+  HttpStatus,
+  HttpException,
+  Query,
+} from '@nestjs/common';
 import { FollowersService } from '../service/followers.service';
 import { Follower } from '../entities/follower.model';
 import { ApiTags } from '@nestjs/swagger';
@@ -11,7 +20,10 @@ export class FollowersController {
   async followUser(
     @Body() data: { userId: string; followingId: string },
   ): Promise<{ message: string }> {
-    const follower = await this.followersService.followUser(data.userId, data.followingId);
+    const follower = await this.followersService.followUser(
+      data.userId,
+      data.followingId,
+    );
     if (!follower) {
       throw new HttpException('Failed to follow user', HttpStatus.BAD_REQUEST);
     }
@@ -27,12 +39,20 @@ export class FollowersController {
   }
 
   @Get('/followersList/:userId')
-  async getFollowers(@Param('userId') userId: string): Promise<Follower[]> {
-    return this.followersService.getFollowers(userId);
+  async getFollowers(
+    @Param('userId') userId: string,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ): Promise<any> {
+    return this.followersService.getFollowers(userId, page, limit);
   }
 
   @Get('/followingList/:userId')
-  async getFollowing(@Param('userId') userId: string): Promise<any> {
-    return this.followersService.getFollowing(userId);
+  async getFollowing(
+    @Param('userId') userId: string,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ): Promise<any> {
+    return this.followersService.getFollowing(userId, page, limit);
   }
 }

@@ -29,40 +29,67 @@ export class FollowersService {
     await this.followerModel.deleteOne({ followerId, followingId }).exec();
   }
 
-  async getFollowers(userId: string): Promise<any[]> {
+  async getFollowers(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<any> {
     await this.validateUser(userId);
     const following = await this.followerModel
       .find({ followingId: userId })
       .lean()
       .exec();
+
     const followingIds = following.map((follow) => follow.followingId);
     const users = await this.userRepository.findUsersByids(followingIds, [
       'id',
       'name',
       'profilePicture',
     ]);
-    return users;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const paginatedUsers = users.slice(startIndex, endIndex);
+    return {
+      page,
+      total: users.length,
+      list: paginatedUsers,
+    };
   }
 
-  async getFollowing(userId: string): Promise<any[]> {
+  async getFollowing(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<any> {
     await this.validateUser(userId);
     const following = await this.followerModel
       .find({ followerId: userId })
       .lean()
       .exec();
+
     const followingIds = following.map((follow) => follow.followingId);
     const users = await this.userRepository.findUsersByids(followingIds, [
       'id',
       'name',
       'profilePicture',
     ]);
-    return users;
+
+    // Implement pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const paginatedUsers = users.slice(startIndex, endIndex);
+
+    return {
+      page,
+      total: users.length,
+      list: paginatedUsers,
+    };
   }
 
   async validateUser(userId: string) {
     if (!ObjectId.isValid(userId)) {
-    throw new NotFoundException('User not found');
-  }
+      throw new NotFoundException('User not found');
+    }
     const user = await this.userRepository.findUserById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
