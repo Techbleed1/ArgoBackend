@@ -13,8 +13,9 @@ export class AuthService {
     const user = await this.authRepository.findUserByEmail(email);
     if (user && user.password === password) {
       const payload = { sub: user.email, username: user.email };
+      const expiresIn = '1h';
       return {
-        access_token: await this.jwtService.signAsync(payload),
+        access_token: await this.jwtService.signAsync(payload, { expiresIn }),
       };
     }
     throw new UnauthorizedException();
