@@ -22,13 +22,49 @@ export class User {
   bio: string;
 
   @Prop()
+  bioLink: string;
+
+  @Prop()
   profilePicture: string;
 
   @Prop()
-  coverPicutre: string
+  socialSiteLinks: { site: string; link: string }[];
 
   @Prop()
-  socialSiteLinks: { site: string; link: string }[];
+  coverPicture: string;
+
+  @Prop()
+  gender: string;
+
+  @Prop()
+  birthDay: Date;
+
+  @Prop()
+  profileTheme: string;
+
+  @Prop()
+  profileStyle: string;
+
+  @Prop()
+  feedStyle: string;
+
+  @Prop()
+  phoneNumber: string;
+
+  @Prop()
+  privacy: boolean;
+
+  @Prop()
+  showFollow: boolean;
+
+  @Prop()
+  showLike: boolean;
+
+  @Prop()
+  showDislike: boolean;
+
+  @Prop()
+  allowance: number;
 
 }
 

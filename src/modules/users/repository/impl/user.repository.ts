@@ -2,7 +2,7 @@
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from '../../entities/user.model';
+import { User, UserDocument } from "../../entities/user.model";
 import { CreateUserDto } from '../dto/createuser.dto';
 import { UpdateUserDto } from '../dto/updateuser.dto';
 import { UserRepositoryInterface } from '../interface/user.repository.interface';
@@ -37,7 +37,7 @@ export class UserRepository implements UserRepositoryInterface {
     };
   }
 
-  async findUserById(id: string): Promise<User | null> {
+  async findUserById(id: string): Promise<UserDocument | null> {
     return this.userModel.findById(id).exec();
   }
 

@@ -1,21 +1,22 @@
 /* eslint-disable prettier/prettier */
 import {
+  BadRequestException,
   ConflictException,
   HttpException,
   HttpStatus,
   Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { UserRepository } from '../repository/impl/user.repository';
-import { User } from '../entities/user.model';
-import { CreateUserDto } from '../repository/dto/createuser.dto';
-import { UpdateUserDto } from '../repository/dto/updateuser.dto';
-import { ForgotPasswordDto } from '../repository/dto/forgotPassword.dto';
-import { MailerService } from '../../mail/service/mailer.service';
-import { SocialType } from '../enom/social.enum';
-import { FollowerRepository } from '../repository/impl/follower.repository';
-import { PaginationDto } from '../repository/dto/pagination.dto';
-import * as otpGenerator from 'otp-generator';
+  NotFoundException
+} from "@nestjs/common";
+import { UserRepository } from "../repository/impl/user.repository";
+import { User } from "../entities/user.model";
+import { CreateUserDto } from "../repository/dto/createuser.dto";
+import { UpdateUserDto } from "../repository/dto/updateuser.dto";
+import { ForgotPasswordDto } from "../repository/dto/forgotPassword.dto";
+import { MailerService } from "../../mail/service/mailer.service";
+import { SocialType } from "../enom/social.enum";
+import { FollowerRepository } from "../repository/impl/follower.repository";
+import { PaginationDto } from "../repository/dto/pagination.dto";
+import * as otpGenerator from "otp-generator";
 
 @Injectable()
 export class UsersService {
@@ -25,6 +26,8 @@ export class UsersService {
     private userRepository: UserRepository,
     private readonly emailService: MailerService,
   ) {}
+
+  private FIELDS = ['name', 'userName', 'bio', 'bioLink', 'profilePicture', 'coverPicture', 'gender', 'birthDay', 'profileTheme', 'profileStyle', 'feedStyle', 'phoneNumber', 'email', 'privacy', 'showFollow', 'showLike', 'showDislike', 'allowance'];
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     const { email } = createUserDto;
@@ -162,4 +165,31 @@ export class UsersService {
       socialSiteLinks: user.socialSiteLinks,
     };
   }
+  async updateSetting(userId: string, updateUserDto: UpdateUserDto): Promise<User> {
+    const existingUser = await this.userRepository.findUserById(userId);
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
+    const updateFields = Object.keys(updateUserDto);
+    for (const field of updateFields) {
+      if (!this.FIELDS.includes(field)) {
+        throw new BadRequestException(`Invalid field: ${field}`);
+      }
+      existingUser[field] = updateUserDto[field];
+    }
+
+    return await existingUser.save();
+  }
+  async getUserSetting(userId: string): Promise<Partial<User>> {
+    const user = await this.userRepository.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const userProfile: Partial<User> = {};
+    this.FIELDS.forEach((field) => {
+      userProfile[field] = user[field];
+    });
+    return userProfile;
+  }
+
 }

@@ -5,8 +5,8 @@ import {
   Delete,
   Get,
   HttpException,
-  HttpStatus,
-  Param,
+  HttpStatus, NotFoundException,
+  Param, Patch,
   Post,
   Put,
   Query, UseGuards,
@@ -20,6 +20,7 @@ import { ApiTags } from "@nestjs/swagger";
 import { SocialType } from "../enom/social.enum";
 import { PaginationDto } from "../repository/dto/pagination.dto";
 import { AuthGuard } from "../../auth/guards/authguard";
+import { UpdateSettingDto } from "../repository/dto/updateSetting.dto";
 
 @ApiTags('users')
 @Controller('users')
@@ -90,5 +91,24 @@ export class UsersController {
       data.newPassword,
     );
     return { message: 'Password reset successful.' };
+  }
+  @UseGuards(AuthGuard)
+  @Put('/updateSetting/:userId')
+  async updateSetting(
+    @Param('userId') userId: string,
+    @Body() updateSettingDto: UpdateSettingDto,
+  ): Promise<any> {
+    const updatedUser = await this.usersService.updateSetting(userId, updateSettingDto);
+    if (!updatedUser) {
+      throw new NotFoundException('User not found');
+    }
+    return { message: 'User setting updated successfully' };
+  }
+  @UseGuards(AuthGuard)
+  @Get('/getSetting/:userId')
+  async getUserSelectedFields(
+    @Param('userId') userId: string,
+  ): Promise<Partial<User>> {
+    return this.usersService.getUserSetting(userId);
   }
 }
