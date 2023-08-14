@@ -12,7 +12,7 @@ import { UpdateUserDto } from '../repository/dto/updateuser.dto';
 import { randomBytes } from 'crypto';
 import { ForgotPasswordDto } from '../repository/dto/forgotPassword.dto';
 import { MailerService } from '../../mail/service/mailer.service';
-import * as otpGenerator from 'otp-generator';
+import otpGenerator from 'otp-generator';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 @Injectable()
@@ -87,9 +87,11 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
     const otp = otpGenerator.generate(6, {
-      upperCase: false,
+      digits: true,
+      lowerCaseAlphabets: true,
+      upperCaseAlphabets: true,
       specialChars: false,
-    });
+   });
     this.otpStore[email] = { otp, timestamp: Date.now() };
     await this.emailService.sendPasswordResetEmail(email, otp);
   }

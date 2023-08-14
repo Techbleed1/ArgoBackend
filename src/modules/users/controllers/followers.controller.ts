@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, HttpStatus, HttpException } from "@nestjs/common";
 import { FollowersService } from '../service/followers.service';
 import { Follower } from '../entities/follower.model';
 import { ApiTags } from '@nestjs/swagger';
@@ -7,21 +7,32 @@ import { ApiTags } from '@nestjs/swagger';
 export class FollowersController {
   constructor(private followersService: FollowersService) {}
 
-  @Post(':followerId/:followingId')
+  @Post('/follow')
   async followUser(
-    @Param('followerId') followerId: string,
-    @Param('followingId') followingId: string,
-  ): Promise<Follower> {
-    return this.followersService.followUser(followerId, followingId);
+    @Body() data: { userId: string; followingId: string },
+  ): Promise<{ message: string }> {
+    const follower = await this.followersService.followUser(data.userId, data.followingId);
+    if (!follower) {
+      throw new HttpException('Failed to follow user', HttpStatus.BAD_REQUEST);
+    }
+    return { message: 'User followed successfully' };
   }
 
-  @Get(':userId/followers')
+  @Post('/unFollow')
+  async unFollowUser(
+    @Body() data: { userId: string; followingId: string },
+  ): Promise<{ message: string }> {
+    await this.followersService.unFollowUser(data.userId, data.followingId);
+    return { message: 'User unfollowed successfully' };
+  }
+
+  @Get('/followersList/:userId')
   async getFollowers(@Param('userId') userId: string): Promise<Follower[]> {
     return this.followersService.getFollowers(userId);
   }
 
-  @Get(':userId/following')
-  async getFollowing(@Param('userId') userId: string): Promise<Follower[]> {
+  @Get('/followingList/:userId')
+  async getFollowing(@Param('userId') userId: string): Promise<any> {
     return this.followersService.getFollowing(userId);
   }
 }

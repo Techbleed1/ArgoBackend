@@ -5,12 +5,19 @@ import { UserRepository } from './repository/impl/user.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './entities/user.model';
 import { MailModule } from '../mail/mail.module';
+import { FollowersController } from './controllers/followers.controller';
+import { FollowersService } from './service/followers.service';
+import { Follower, FollowerSchema } from './entities/follower.model';
 
 @Module({
-  imports: [MailModule,
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+  imports: [
+    MailModule,
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Follower.name, schema: FollowerSchema },
+    ]),
   ],
-  controllers: [UsersController],
-  providers: [UsersService, UserRepository],
+  controllers: [UsersController, FollowersController],
+  providers: [UsersService, UserRepository, FollowersService],
 })
 export class UsersModule {}

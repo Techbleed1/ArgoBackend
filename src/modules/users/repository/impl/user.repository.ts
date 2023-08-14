@@ -44,4 +44,8 @@ export class UserRepository implements UserRepositoryInterface {
   async updatePassword(email: string, password: string): Promise<void> {
     await this.userModel.findOneAndUpdate({ email }, { password }).exec();
   }
+
+  async findUsersByids(userIds: string[], fields: string[]): Promise<User[]> {
+    return this.userModel.find({ _id: { $in: userIds } }).select(fields.join(' ')).lean().exec();
+  }
 }
