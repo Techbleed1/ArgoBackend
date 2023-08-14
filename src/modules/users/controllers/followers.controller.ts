@@ -9,7 +9,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { FollowersService } from '../service/followers.service';
-import { Follower } from '../entities/follower.model';
 import { ApiTags } from '@nestjs/swagger';
 @ApiTags('followers')
 @Controller('followers')

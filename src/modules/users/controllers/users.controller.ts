@@ -7,13 +7,14 @@ import {
   Put,
   Delete,
   Body,
-  Query,
-} from '@nestjs/common';
+  Query, HttpStatus, HttpException
+} from "@nestjs/common";
 import { User } from '../entities/user.model';
 import { CreateUserDto } from '../repository/dto/createuser.dto';
 import { UpdateUserDto } from '../repository/dto/updateuser.dto';
 import { UsersService } from '../service/users.service';
 import { ApiTags } from '@nestjs/swagger';
+import { SocialType } from '../enom/social.enum';
 
 @ApiTags('users')
 @Controller('users')
@@ -49,6 +50,18 @@ export class UsersController {
   @Delete(':id')
   async deleteUser(@Param('id') id: string): Promise<void> {
     return this.usersService.deleteUser(id);
+  }
+
+  @Post('/add-social-link')
+  async addSocialLink(@Body() data: { userId: string, type: SocialType; link: string },
+  ): Promise<{ message: string }> {
+    const { userId, type, link } = data;
+    if (!Object.values(SocialType).includes(type)) {
+      throw new HttpException('Invalid social site type', HttpStatus.BAD_REQUEST);
+    }
+
+    await this.usersService.addSocialLink(userId, type, link);
+    return { message: 'Social site link added or updated successfully' };
   }
 
   @Post('/reset-password-otp')

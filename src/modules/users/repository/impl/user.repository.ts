@@ -48,4 +48,7 @@ export class UserRepository implements UserRepositoryInterface {
   async findUsersByids(userIds: string[], fields: string[]): Promise<User[]> {
     return this.userModel.find({ _id: { $in: userIds } }).select(fields.join(' ')).lean().exec();
   }
+  async updateUserData(userId: string, update: Partial<User>): Promise<User | null> {
+    return this.userModel.findByIdAndUpdate(userId, update, { new: true }).exec();
+  }
 }

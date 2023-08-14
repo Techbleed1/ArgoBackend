@@ -24,6 +24,9 @@ export class User {
   @Prop()
   coverPicutre: string
 
+  @Prop()
+  socialSiteLinks: { site: string; link: string }[];
+
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -1,19 +1,18 @@
 import {
-  Injectable,
   ConflictException,
+  HttpException,
+  HttpStatus,
+  Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { UserRepository } from '../repository/impl/user.repository';
-import { Model } from 'mongoose';
 import { User } from '../entities/user.model';
 import { CreateUserDto } from '../repository/dto/createuser.dto';
 import { UpdateUserDto } from '../repository/dto/updateuser.dto';
-import { randomBytes } from 'crypto';
 import { ForgotPasswordDto } from '../repository/dto/forgotPassword.dto';
 import { MailerService } from '../../mail/service/mailer.service';
 import otpGenerator from 'otp-generator';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { SocialType } from '../enom/social.enum';
 
 @Injectable()
 export class UsersService {
@@ -81,6 +80,29 @@ export class UsersService {
   //   return resetToken;
   // }
 
+  async addSocialLink(
+    userId: string,
+    type: SocialType,
+    link: string,
+  ): Promise<User> {
+    const user = await this.userRepository.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const index = user.socialSiteLinks.findIndex(
+      (socialSite) => socialSite.site === type,
+    );
+    const updateObj: Partial<User> =
+      index !== -1
+        ? {
+            socialSiteLinks: user.socialSiteLinks.map((site, i) =>
+              i === index ? { ...site, link } : site,
+            ),
+          }
+        : { socialSiteLinks: [...user.socialSiteLinks, { site: type, link }] };
+    return await this.userRepository.updateUserData(userId, updateObj);
+  }
+
   async otpForPasswordReset(email: string) {
     const user = await this.userRepository.findUserByEmail(email);
     if (!user) {
@@ -91,7 +113,7 @@ export class UsersService {
       lowerCaseAlphabets: true,
       upperCaseAlphabets: true,
       specialChars: false,
-   });
+    });
     this.otpStore[email] = { otp, timestamp: Date.now() };
     await this.emailService.sendPasswordResetEmail(email, otp);
   }
