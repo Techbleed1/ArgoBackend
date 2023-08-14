@@ -1,29 +1,33 @@
 /* eslint-disable prettier/prettier */
 import {
-  Injectable,
+  BadRequestException,
   ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { UserRepository } from '../repository/impl/user.repository';
-import { Model } from 'mongoose';
-import { User } from '../entities/user.model';
-import { CreateUserDto } from '../repository/dto/createuser.dto';
-import { UpdateUserDto } from '../repository/dto/updateuser.dto';
-import { randomBytes } from 'crypto';
-import { ForgotPasswordDto } from '../repository/dto/forgotPassword.dto';
-import { PaginationDto } from '../repository/dto/pagination.dto';
-import { MailerService } from '../../mail/service/mailer.service';
-import * as otpGenerator from 'otp-generator';
-import { HttpException, HttpStatus } from '@nestjs/common';
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException
+} from "@nestjs/common";
+import { UserRepository } from "../repository/impl/user.repository";
+import { User } from "../entities/user.model";
+import { CreateUserDto } from "../repository/dto/createuser.dto";
+import { UpdateUserDto } from "../repository/dto/updateuser.dto";
+import { ForgotPasswordDto } from "../repository/dto/forgotPassword.dto";
+import { MailerService } from "../../mail/service/mailer.service";
+import { SocialType } from "../enom/social.enum";
+import { FollowerRepository } from "../repository/impl/follower.repository";
+import { PaginationDto } from "../repository/dto/pagination.dto";
+import * as otpGenerator from "otp-generator";
 
 @Injectable()
 export class UsersService {
   private otpStore: Record<string, { otp: string; timestamp: number }> = {};
   constructor(
+    private followerRepository: FollowerRepository,
     private userRepository: UserRepository,
     private readonly emailService: MailerService,
   ) {}
+
+  private FIELDS = ['name', 'userName', 'bio', 'bioLink', 'profilePicture', 'coverPicture', 'gender', 'birthDay', 'profileTheme', 'profileStyle', 'feedStyle', 'phoneNumber', 'email', 'privacy', 'showFollow', 'showLike', 'showDislike', 'allowance'];
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     const { email } = createUserDto;
@@ -83,17 +87,42 @@ export class UsersService {
   //   return resetToken;
   // }
 
+  async addSocialLink(
+    userId: string,
+    type: SocialType,
+    link: string,
+  ): Promise<User> {
+    const user = await this.userRepository.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const index = user.socialSiteLinks.findIndex(
+      (socialSite) => socialSite.site === type,
+    );
+    const updateObj: Partial<User> =
+      index !== -1
+        ? {
+            socialSiteLinks: user.socialSiteLinks.map((site, i) =>
+              i === index ? { ...site, link } : site,
+            ),
+          }
+        : { socialSiteLinks: [...user.socialSiteLinks, { site: type, link }] };
+    return await this.userRepository.updateUserData(userId, updateObj);
+  }
+
   async otpForPasswordReset(email: string) {
     const user = await this.userRepository.findUserByEmail(email);
     if (!user) {
       throw new NotFoundException('User not found');
     }
     const otp = otpGenerator.generate(6, {
-      upperCase: false,
+      digits: true,
+      lowerCaseAlphabets: true,
+      upperCaseAlphabets: true,
       specialChars: false,
     });
     this.otpStore[email] = { otp, timestamp: Date.now() };
-    await await this.emailService.sendPasswordResetEmail(email, otp);
+    await this.emailService.sendPasswordResetEmail(email, otp);
   }
 
   async passwordReset(email: string, otp: string, newPassword: string) {
@@ -104,13 +133,63 @@ export class UsersService {
         storedOtp.otp === otp &&
         Date.now() - storedOtp.timestamp <= 600000
       ) {
-        this.userRepository.updatePassword(email, newPassword);
+        await this.userRepository.updatePassword(email, newPassword);
         delete this.otpStore[email];
       } else {
-        throw new HttpException('Invalid OTP or OTP has expired.', HttpStatus.OK);
+        throw new HttpException(
+          'Invalid OTP or OTP has expired.',
+          HttpStatus.OK,
+        );
       }
     } catch (error) {
       throw error;
     }
   }
+
+  async getUserProfileInfo(userId: string) {
+    const user = await this.userRepository.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const followers = await this.followerRepository.findFollowersCountById(
+      userId,
+    );
+    const following = await this.followerRepository.findFollowingCountById(
+      userId,
+    );
+    return {
+      name: user.name,
+      userName: user.userName,
+      followers,
+      following,
+      socialSiteLinks: user.socialSiteLinks,
+    };
+  }
+  async updateSetting(userId: string, updateUserDto: UpdateUserDto): Promise<User> {
+    const existingUser = await this.userRepository.findUserById(userId);
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
+    const updateFields = Object.keys(updateUserDto);
+    for (const field of updateFields) {
+      if (!this.FIELDS.includes(field)) {
+        throw new BadRequestException(`Invalid field: ${field}`);
+      }
+      existingUser[field] = updateUserDto[field];
+    }
+
+    return await existingUser.save();
+  }
+  async getUserSetting(userId: string): Promise<Partial<User>> {
+    const user = await this.userRepository.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const userProfile: Partial<User> = {};
+    this.FIELDS.forEach((field) => {
+      userProfile[field] = user[field];
+    });
+    return userProfile;
+  }
+
 }

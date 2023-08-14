@@ -3,13 +3,10 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
-  HttpStatus,
   Post,
   Request,
   UseGuards
 } from '@nestjs/common';
-import { AuthCredentialsDto } from '../repository/dtos/auth-credentials.dto';
 import { AuthService } from '../service/auth.service';
 import { LoginDto } from '../repository/dtos/auth-credentials.dto';
 import { ApiTags } from '@nestjs/swagger';
