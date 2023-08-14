@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { MailerService as MailService }  from '@nestjs-modules/mailer';
 
