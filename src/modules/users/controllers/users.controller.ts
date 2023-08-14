@@ -64,6 +64,12 @@ export class UsersController {
     return { message: 'Social site link added or updated successfully' };
   }
 
+  @Get('/profile/:userId')
+  async getUserInfo(@Param('userId') userId: string) {
+    const userInfo = await this.usersService.getUserProfileInfo(userId);
+    return userInfo;
+  }
+
   @Post('/reset-password-otp')
   async resetPasswordSendOtp(@Body() data: { email: string }) {
     await this.usersService.otpForPasswordReset(data.email);

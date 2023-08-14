@@ -13,11 +13,13 @@ import { ForgotPasswordDto } from '../repository/dto/forgotPassword.dto';
 import { MailerService } from '../../mail/service/mailer.service';
 import otpGenerator from 'otp-generator';
 import { SocialType } from '../enom/social.enum';
+import { FollowerRepository } from '../repository/impl/follower.repository';
 
 @Injectable()
 export class UsersService {
   private otpStore: Record<string, { otp: string; timestamp: number }> = {};
   constructor(
+    private followerRepository: FollowerRepository,
     private userRepository: UserRepository,
     private readonly emailService: MailerService,
   ) {}
@@ -137,5 +139,25 @@ export class UsersService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async getUserProfileInfo(userId: string) {
+    const user = await this.userRepository.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const followers = await this.followerRepository.findFollowersCountById(
+      userId,
+    );
+    const following = await this.followerRepository.findFollowingCountById(
+      userId,
+    );
+    return {
+      name: user.name,
+      userName: user.userName,
+      followers,
+      following,
+      socialSiteLinks: user.socialSiteLinks,
+    };
   }
 }

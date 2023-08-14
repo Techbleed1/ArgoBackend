@@ -8,6 +8,7 @@ import { MailModule } from '../mail/mail.module';
 import { FollowersController } from './controllers/followers.controller';
 import { FollowersService } from './service/followers.service';
 import { Follower, FollowerSchema } from './entities/follower.model';
+import { FollowerRepository } from './repository/impl/follower.repository';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { Follower, FollowerSchema } from './entities/follower.model';
     ]),
   ],
   controllers: [UsersController, FollowersController],
-  providers: [UsersService, UserRepository, FollowersService],
+  providers: [UsersService, UserRepository, FollowersService, FollowerRepository],
 })
 export class UsersModule {}
