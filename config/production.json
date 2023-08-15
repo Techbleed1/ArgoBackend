@@ -5,5 +5,8 @@
       "host": "smtp-relay.brevo.com",
       "port": 587,
       "from": "no-reply@argo.com"
-    }
+    },
+  "file": {
+    "bucket": "argo-new"
+  }
   }

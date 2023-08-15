@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 import { AuthModule } from './modules/auth/auth.module';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
+import { FileModule } from "./modules/file/file.module";
 
 
 const logger = new Logger('app');
@@ -24,7 +25,7 @@ const db_uri1 = 'mongodb+srv://kumargowtham:ZFo5DwppYE6cTaME@cluster0.1ujusku.mo
       http: process.env.NODE_ENV !== 'production',
     }),
     UsersModule,
-    AuthModule],
+    AuthModule,FileModule],
   controllers: [AppController],
   providers: [AppService],
 })
