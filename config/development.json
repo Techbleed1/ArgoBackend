@@ -7,6 +7,6 @@
       "from": "no-reply@argo.com"
     },
     "file": {
-      "bucket": "argo-new"
+      "bucket": "qq_argo_test_bucket"
     }
   }
