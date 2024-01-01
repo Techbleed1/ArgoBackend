@@ -26,7 +26,7 @@ import { UpdateSettingDto } from "../repository/dto/updateSetting.dto";
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-  @UseGuards(AuthGuard)
+  //@UseGuards(AuthGuard)
   @Post('/create')
   async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
     return await this.usersService.createUser(createUserDto);
