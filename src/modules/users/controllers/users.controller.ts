@@ -9,7 +9,7 @@ import {
   Param, Patch,
   Post,
   Put,
-  Query, UseGuards,
+  Query, Request, UseGuards,
   ValidationPipe
 } from "@nestjs/common";
 import { User } from "../entities/user.model";
@@ -39,28 +39,35 @@ export class UsersController {
       return this.usersService.findUsers(pagination);
     }
   @UseGuards(AuthGuard)
-  @Get(':id')
-  async findUserById(@Param('id') id: string): Promise<User> {
+  @Get('getUser')
+  async findUserById(
+    @Request() req): Promise<User> {
+    const id = req.user.userId;
     return this.usersService.findUserById(id);
   }
   @UseGuards(AuthGuard)
-  @Put(':id')
+  @Put('/update')
   async updateUser(
-    @Param('id') id: string,
+    @Request() req,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
+    const id = req.user.userId;
     return this.usersService.updateUser(id, updateUserDto);
   }
   @UseGuards(AuthGuard)
-  @Delete(':id')
-  async deleteUser(@Param('id') id: string): Promise<void> {
+  @Delete('/delete')
+  async deleteUser(
+    @Request() req): Promise<void> {
+    const id = req.user.userId;
     return this.usersService.deleteUser(id);
   }
   @UseGuards(AuthGuard)
   @Post('/add-social-link')
-  async addSocialLink(@Body() data: { userId: string, type: SocialType; link: string },
+  async addSocialLink(
+    @Request() req, @Body() data: {type: SocialType; link: string },
   ): Promise<{ message: string }> {
-    const { userId, type, link } = data;
+    const userId = req.user.userId;
+    const { type, link } = data;
     if (!Object.values(SocialType).includes(type)) {
       throw new HttpException('Invalid social site type', HttpStatus.BAD_REQUEST);
     }
@@ -69,8 +76,10 @@ export class UsersController {
     return { message: 'Social site link added or updated successfully' };
   }
   @UseGuards(AuthGuard)
-  @Get('/profile/:userId')
-  async getUserInfo(@Param('userId') userId: string) {
+  @Get('/profile')
+  async getUserInfo(
+    @Request() req) {
+    const userId = req.user.userId;
     return await this.usersService.getUserProfileInfo(userId);
   }
   @UseGuards(AuthGuard)
@@ -93,11 +102,12 @@ export class UsersController {
     return { message: 'Password reset successful.' };
   }
   @UseGuards(AuthGuard)
-  @Put('/updateSetting/:userId')
+  @Put('/updateSetting')
   async updateSetting(
-    @Param('userId') userId: string,
+    @Request() req,
     @Body() updateSettingDto: UpdateSettingDto,
   ): Promise<any> {
+    const userId = req.user.userId;
     const updatedUser = await this.usersService.updateSetting(userId, updateSettingDto);
     if (!updatedUser) {
       throw new NotFoundException('User not found');
@@ -105,10 +115,11 @@ export class UsersController {
     return { message: 'User setting updated successfully' };
   }
   @UseGuards(AuthGuard)
-  @Get('/getSetting/:userId')
+  @Get('/getSetting')
   async getUserSelectedFields(
-    @Param('userId') userId: string,
+    @Request() req,
   ): Promise<Partial<User>> {
+    const userId = req.user.userId;
     return this.usersService.getUserSetting(userId);
   }
 }

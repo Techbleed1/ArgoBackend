@@ -8,6 +8,7 @@ import {
   HttpException,
   Query,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { FollowersService } from '../service/followers.service';
 import { ApiTags } from '@nestjs/swagger';
@@ -19,10 +20,12 @@ export class FollowersController {
   @UseGuards(AuthGuard)
   @Post('/follow')
   async followUser(
-    @Body() data: { userId: string; followingId: string },
+    @Request() req,
+    @Body() data: { followingId: string },
   ): Promise<{ message: string }> {
+    const userId = req.user.userId;
     const follower = await this.followersService.followUser(
-      data.userId,
+      userId,
       data.followingId,
     );
     if (!follower) {
@@ -33,27 +36,31 @@ export class FollowersController {
   @UseGuards(AuthGuard)
   @Post('/unFollow')
   async unFollowUser(
-    @Body() data: { userId: string; followingId: string },
+    @Request() req,
+    @Body() data: { followingId: string },
   ): Promise<{ message: string }> {
-    await this.followersService.unFollowUser(data.userId, data.followingId);
+    const userId = req.user.userId;
+    await this.followersService.unFollowUser(userId, data.followingId);
     return { message: 'User unfollowed successfully' };
   }
   @UseGuards(AuthGuard)
-  @Get('/followersList/:userId')
+  @Get('/followersList')
   async getFollowers(
-    @Param('userId') userId: string,
+    @Request() req,
     @Query('page') page = 1,
     @Query('limit') limit = 10,
   ): Promise<any> {
+    const userId = req.user.userId;
     return this.followersService.getFollowers(userId, page, limit);
   }
   @UseGuards(AuthGuard)
-  @Get('/followingList/:userId')
+  @Get('/followingList')
   async getFollowing(
-    @Param('userId') userId: string,
+    @Request() req,
     @Query('page') page = 1,
     @Query('limit') limit = 10,
   ): Promise<any> {
+    const userId = req.user.userId;
     return this.followersService.getFollowing(userId, page, limit);
   }
 }
